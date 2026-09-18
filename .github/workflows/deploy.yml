@@ -1,0 +1,46 @@
+name: Push a Neocities (Sin LLorar)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Jalar el repo
+        uses: actions/checkout@v4
+
+      - name: Disparo balístico a Neocities API
+        env:
+          NC_USER: ${{ secrets.NEOCITIES_USER }}
+          NC_PASS: ${{ secrets.NEOCITIES_PASS }}
+        run: |
+          echo "Iniciando bombardeo a pattitextec..."
+          
+          # Archivos base de la raiz
+          curl -s -u "$NC_USER:$NC_PASS" \
+            -F "r[]=@index.html" \
+            -F "r[]=@style.css" \
+            -F "r[]=@Blogs.json" \
+            https://neocities.org/api/upload
+            
+          # Si tienes assets/
+          if [ -d "assets" ]; then
+            find assets -type f | while read f; do
+              curl -s -u "$NC_USER:$NC_PASS" -F "r[]=@$f" https://neocities.org/api/upload
+              echo "asset enviado: $f"
+            done
+          fi
+
+          # Si tienes carpeta post/ con los .blog
+          if [ -d "post" ]; then
+            find post -type f | while read f; do
+              curl -s -u "$NC_USER:$NC_PASS" -F "r[]=@$f" https://neocities.org/api/upload
+              echo "post enviado: $f"
+            done
+          fi
+          
+          echo "Listo pinche dev, ya quedó."
+          
